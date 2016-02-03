@@ -30,6 +30,7 @@ public class Crawler {
 	//******************************************************************
 
 	//******************************************************************
+	//Main method of the program. Loops until the queue is empty.
 	public void crawl() throws IOException {
 		
 		System.out.println("Started.\nRunning...");

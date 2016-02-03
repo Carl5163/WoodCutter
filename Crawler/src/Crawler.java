@@ -24,7 +24,7 @@ public class Crawler {
 
 	public Crawler() throws IOException {
 		crawl();	
-		System.out.println("Done! Output can be found in emailAddr.txtt");
+		System.out.println("Done! Output can be found in emailAddr.txt");
 	}
 	
 	public void crawl() throws IOException {

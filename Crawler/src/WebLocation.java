@@ -16,23 +16,19 @@ public class WebLocation extends ParserCallback{
 	private Vector<String> emails;
 	private Pattern pattern;
 	private int depth;
-	
+
+	//******************************************************************
 	public WebLocation(String url, int depth) throws IOException {
 		this.url = new URL(url.trim());
 		this.depth = depth;
 		emails = new Vector<String>();
+		parser = new ParserDelegator();
 		pattern = Pattern.compile("[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})");
 	}
-
-	public URL getURL() {
-		return url;
-	}
-
-	public void setURL(URL url) {
-		this.url = url;
-	}
+	//******************************************************************
 	
-	public void handleSimpleTag(HTML.Tag tag, MutableAttributeSet t, int pos) {
+	//******************************************************************
+	public void handleStartTag(HTML.Tag tag, MutableAttributeSet t, int pos) {
 		if(tag.toString().equalsIgnoreCase("a")) {
 			String ref = (String) t.getAttribute(HTML.Attribute.HREF);
 			if(ref != null) {
@@ -56,23 +52,26 @@ public class WebLocation extends ParserCallback{
 			}
 		}
 	}
-	
-	public void handleStartTag(HTML.Tag tag, MutableAttributeSet t, int pos) {
-		handleSimpleTag(tag,t,pos);
-	}
+	//******************************************************************
 
+	//******************************************************************
+	//This method is called once for every web page. It first creates a 
+	//reader from the URL given when this instance was instantiated. 
+	//It then finds calls findEmails(), and begins parsing the HTML.
 	public void process(PseudoQueue pseudoQueue) throws IOException{
 
 		queue = pseudoQueue;
 		Reader reader = new InputStreamReader(url.openStream());	
 		findEmails(reader);
 		reader = new InputStreamReader(url.openStream());
-		
-		parser = new ParserDelegator();
 		parser.parse(reader, this, true);		
 		
 	}
-	
+	//******************************************************************
+
+	//******************************************************************
+	//This method creates a buffered reader from a given reader and 
+	//searches for all emails on the page. It then adds them to the 
 	public void findEmails(Reader reader) throws IOException {
 		
 		BufferedReader br = new BufferedReader(reader);
@@ -94,7 +93,12 @@ public class WebLocation extends ParserCallback{
 		}	
 		
 	}
+	//******************************************************************
 	
+	//******************************************************************
+	//This method checks a vector of strings to see if a string is 
+	//contained in the vector. It uses String.equals() so the actual 
+	//strings are compared instead of pointers to String.	
 	public boolean stringContains(Vector<String> vector, String item) {
 		for(String s : vector) {
 			if(s.toString().trim().equalsIgnoreCase(item.toString())) {
@@ -103,19 +107,14 @@ public class WebLocation extends ParserCallback{
 		}
 		return false;
 	}
-
-	public void write(BufferedWriter writer, boolean emptyURLs) throws IOException {
+	//******************************************************************
+	
+	//******************************************************************
+	//This method writes the Weblocation to a file. It ensures that links
+	//containing no emails are not printed IF the SHOW_EMPTY_LINKS flag is set.
+	public void write(BufferedWriter writer) throws IOException {
 		
-		
-		
-		if(emails.size() != 0) {
-			writer.write(url.toString() + "\n");
-			for(String s : emails) {
-				writer.write(s + "\n");	
-			}
-		
-			writer.write("************************************************\n");
-		} else if(emptyURLs){
+		if(emails.size() != 0 || Crawler.SHOW_EMPTY_LINKS) {
 			writer.write(url.toString() + "\n");
 			for(String s : emails) {
 				writer.write(s + "\n");	
@@ -125,9 +124,11 @@ public class WebLocation extends ParserCallback{
 		}
 				
 	}
+	//******************************************************************
 	
-
+	//******************************************************************
 	public String toString() {
 		return url.toString();
 	}
+	//******************************************************************
 }

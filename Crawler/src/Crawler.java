@@ -23,12 +23,12 @@ public class Crawler {
 
 
 	public Crawler() throws IOException {
-
-		start();		
+		crawl();	
+		System.out.println("Done! Output can be found in emailAddr.txt");
 	}
 	
-	public void start() throws IOException {
-
+	public void crawl() throws IOException {
+		
 		System.out.println("Started.\nRunning...");
 
 		queue = new PseudoQueue();
@@ -54,7 +54,7 @@ public class Crawler {
 	try {
 		writer = new BufferedWriter(new FileWriter("Emails.txt"));
 		for(int i = 0; i < queue.realSize(); i++) {
-			queue.get(i).write(writer, SHOW_EMPTY_LINKS);
+			queue.get(i).write(writer);
 		}
 		writer.close();
 	} catch (IOException e) {
@@ -63,9 +63,6 @@ public class Crawler {
 		}
 	}
 	
-
-		System.out.println("Done! Output can be found in Output.txt");
-		
 	}
 	
 }

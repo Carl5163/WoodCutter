@@ -1,17 +1,12 @@
-package cwahler;
-
-import java.io.IOException;
 import java.util.Vector;
 
 @SuppressWarnings("serial")
 public class PseudoQueue extends Vector<WebLocation> {
 	
-	private int startIndex = 0;
-	private boolean verbose;
+	private int head = 0;
 	
-	public PseudoQueue(boolean verbose) {
+	public PseudoQueue() {
 		super();
-		this.verbose = verbose;
 	}
 	
 	public void Enqueue(WebLocation location) {
@@ -19,17 +14,17 @@ public class PseudoQueue extends Vector<WebLocation> {
 	}
 	
 	public void dequeue() {
-		startIndex += 1;
+		head += 1;
 	}
 	
 	public boolean isEmpty() {
-		return startIndex == size();
+		return head == size();
 	}
 
-	public WebLocation visit(){
+	public WebLocation deQueue(){
 
-		startIndex++;
-		return get(startIndex-1);		
+		head++;
+		return get(head-1);		
 		
 	}
 	public boolean contains(Object item) {
@@ -51,7 +46,7 @@ public class PseudoQueue extends Vector<WebLocation> {
 	}
 	
 	public int size() {
-		return super.size() - startIndex;
+		return super.size() - head;
 	}
 
 	public int realSize() {

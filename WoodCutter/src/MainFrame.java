@@ -15,7 +15,7 @@ public class MainFrame extends JFrame implements DocumentListener{
 	private JTextField tfLength2;
 	private JTextField tfNumLength1;
 	private JTextField tfNumLength2;
-	private JTextField tfNumLength3;
+	private JTextField tfWaste;
 	private JLabel lblLogLength;
 	private JLabel lblLength1;
 	private JLabel lblLength2;
@@ -85,10 +85,10 @@ public class MainFrame extends JFrame implements DocumentListener{
 		tfNumLength2.setEditable(false);
 		tfNumLength2.setColumns(10);
 		
-		tfNumLength3 = new JTextField();
-		tfNumLength3.setText("0");
-		tfNumLength3.setEditable(false);
-		tfNumLength3.setColumns(10);
+		tfWaste = new JTextField();
+		tfWaste.setText("0");
+		tfWaste.setEditable(false);
+		tfWaste.setColumns(10);
 		GroupLayout glMain = new GroupLayout(pnlMain);
 		glMain.setHorizontalGroup(
 			glMain.createParallelGroup(Alignment.LEADING)
@@ -116,7 +116,7 @@ public class MainFrame extends JFrame implements DocumentListener{
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(glMain.createParallelGroup(Alignment.LEADING)
 								.addComponent(lblNumLength3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
-								.addComponent(tfNumLength3, GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE))))
+								.addComponent(tfWaste, GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE))))
 					.addContainerGap())
 		);
 		glMain.setVerticalGroup(
@@ -143,7 +143,7 @@ public class MainFrame extends JFrame implements DocumentListener{
 					.addGroup(glMain.createParallelGroup(Alignment.BASELINE)
 						.addComponent(tfNumLength1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(tfNumLength2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(tfNumLength3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(tfWaste, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap(98, Short.MAX_VALUE))
 		);
 		pnlMain.setLayout(glMain);
@@ -152,7 +152,6 @@ public class MainFrame extends JFrame implements DocumentListener{
 	public static void main(String[] args) {
 		new MainFrame();
 	}
-
 
 	@Override
 	public void insertUpdate(DocumentEvent arg0) {
@@ -177,7 +176,7 @@ public class MainFrame extends JFrame implements DocumentListener{
 		
 		tfNumLength1.setText("0");
 		tfNumLength2.setText("0");
-		tfNumLength3.setText("0");
+		tfWaste.setText("0");
 		
 		try {
 			logLength = Double.parseDouble(tfLogLength.getText().trim());
@@ -192,32 +191,42 @@ public class MainFrame extends JFrame implements DocumentListener{
 		if(!bad && cut1 == 0 && cut2 == 0) {
 			tfNumLength1.setText(""+0);
 			tfNumLength2.setText(""+0);
-			tfNumLength3.setText(""+logLength);
+			tfWaste.setText(""+logLength);
 		} else if(!bad && (cut1 == 0 || cut2 == 0)) {
-			
+			if(cut1 == 0) {
+				tfNumLength2.setText(""+Math.floor(logLength/cut2));
+				tfWaste.setText(""+(logLength-Math.floor(logLength/cut2)*cut2));
+			}
+			if(cut2 == 0) {
+				tfNumLength1.setText(""+Math.floor(logLength/cut1));
+				tfWaste.setText(""+(logLength-Math.floor(logLength/cut1)*cut1));
+			}
 		} else if(!bad) {
 			//Main Processing
 			
 			double len1, len2;
-			double waste = Double.MAX_VALUE;
+			double leastWaste = Double.MAX_VALUE;
 			boolean swapped = false;
-			len1 = Math.min(cut1, cut2);
-			len2 = Math.max(cut1, cut2);
+			len1 = Math.max(cut1, cut2);
+			len2 = Math.min(cut1, cut2);
 			if(len1 != cut1 || len2 != cut2) {
 				swapped = true;
 			}
 			int startVal = (int) Math.floor(logLength / len1);
 			int n[] = {0,0};
 			int m[] = {startVal, startVal};
-			double wasteTemp = 0;
-			while(m[0] >= 0) {
-				wasteTemp = logLength - (m[0] * len1 + n[0] * len2);
-				if(wasteTemp < waste) {
-					m[1] = m[0];
-					n[1] = n[0];
-					waste = wasteTemp;
-				}
-				m[0]--;
+			double newWaste = 0;
+			while(n[0] <= startVal) {
+				while(m[0] >= 0) {
+					newWaste = logLength - (m[0] * len1 + n[0] * len2);
+					if(newWaste < leastWaste && newWaste >= 0) {
+						m[1] = m[0];
+						n[1] = n[0];
+						leastWaste = newWaste;
+					}
+					m[0]--;
+					}
+				m[0] = startVal;
 				n[0]++;
 			}
 			if(swapped) {
@@ -227,8 +236,8 @@ public class MainFrame extends JFrame implements DocumentListener{
 				tfNumLength1.setText(""+m[1]);
 				tfNumLength2.setText(""+n[1]);			
 			}
-			tfNumLength3.setText(""+waste);
-				
+			tfWaste.setText(""+leastWaste);
+					
 		}
 		
 		//Update Label colors to indicate invalid data.
